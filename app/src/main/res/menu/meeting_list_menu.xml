@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:icon="@drawable/ic_baseline_filter_list_24"
+        android:orderInCategory="0"
+        app:showAsAction="ifRoom"
+        android:title="@string/menu">
+
+        <menu>
+            <item
+                android:orderInCategory="1"
+                android:title="@string/byDate"
+                app:showAsAction="never" />
+            <item
+                android:orderInCategory="2"
+                android:title="@string/byMeetingRoom"
+                app:showAsAction="never" />
+            <item
+                android:orderInCategory="3"
+                android:title="@string/resetList"
+                app:showAsAction="never" />
+        </menu>
+
+    </item>
+
+</menu>

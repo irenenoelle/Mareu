@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">Mareu</string>
+    <string name="activity_add_meeting">Nouvelle Réunion</string>
+    <string name="byDate">Date</string>
+    <string name="byMeetingRoom">Salle</string>
+    <string name="resetList">Remise à zéro</string>
+    <string name="menu">Menu</string>
+    <string-array name="Rooms">
+        <item>-</item>
+        <item>Curie</item>
+        <item>Newton</item>
+        <item>Einstein</item>
+        <item>Tesla</item>
+        <item>Edison</item>
+        <item>Archimède</item>
+        <item>Aristote</item>
+        <item>Copernic</item>
+        <item>Pasteur</item>
+        <item>Descartes</item>
+    </string-array>
+    <string-array name="Duration">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>45 minutes</item>
+        <item>1 heure</item>
+        <item>1h30 minutes</item>
+        <item>2 heures</item>
+        <item>La journée</item>
+    </string-array>
+</resources>
