@@ -158,7 +158,7 @@ public class AddMeetingActivity extends AppCompatActivity implements AdapterView
                 mSpinner = v.findViewById(R.id.spinner);
 
                 //Spinner roomChoice = new Spinner(getApplicationContext(), Spinner.MODE_DIALOG);
-                ArrayAdapter<String> roomAdapter = new ArrayAdapter<>(AddMeetingActivity.this, android.R.layout.simple_spinner_item, MEETINGS_ROOMS);
+                ArrayAdapter<String> roomAdapter = new ArrayAdapter<>(AddMeetingActivity.this, android.R.layout.simple_spinner_item, availableMeetingRooms);
                 roomAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 mSpinner.setAdapter(roomAdapter);
 
