@@ -28,7 +28,7 @@ public class MyMeetingRecyclerViewAdapter extends RecyclerView.Adapter<MyMeeting
     private List<Meeting> mMeetings = new ArrayList<>();
     private String mFilterValue;
     FilterType mFilterType = FilterType.NONE;
-    private MeetingApiService mApiService = DI.getMeetingApiService();
+    private final MeetingApiService mApiService = DI.getMeetingApiService();
     public MyMeetingRecyclerViewAdapter(List<Meeting> items) { setValue(items); }
 
     @Override

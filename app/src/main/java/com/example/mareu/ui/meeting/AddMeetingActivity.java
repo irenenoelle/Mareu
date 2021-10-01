@@ -1,5 +1,7 @@
 package com.example.mareu.ui.meeting;
 
+import static com.example.mareu.service.DummyMeetingGenerator.MEETINGS_ROOMS;
+
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -32,8 +34,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,11 +41,10 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class AddMeetingActivity extends AppCompatActivity {
+public class AddMeetingActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
 
     private EditText nameInput;
     private TextView dateInput;
@@ -62,10 +61,18 @@ public class AddMeetingActivity extends AppCompatActivity {
 
     private MeetingApiService mApiService;
     private List<String> mMeetingParticipantList;
+    private long mMeetingDuration;
+    private long mMeetingStartTimeMillis;
+    private long mMeetingEndTimeMillis;
+    private String mMeetingEndTime;
+    private Calendar calendar;
     private int chipId;
 
     private List<Meeting> meetingList;
 
+    /**
+     * Initialize vars and set all listeners including TextChangedListeners and EditorActionListeners
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,11 +88,12 @@ public class AddMeetingActivity extends AppCompatActivity {
         timerInput = findViewById(R.id.timerInput);
         mChipGroup = findViewById(R.id.chip_group);
 
-        Calendar calendar = Calendar.getInstance();
+        calendar = Calendar.getInstance();
         rYear = calendar.get(Calendar.YEAR);
         rMonth = calendar.get(Calendar.MONTH);
         rDay = calendar.get(Calendar.DAY_OF_MONTH);
         mSaveButton = findViewById(R.id.save);
+
         mSaveButton.setOnClickListener(v -> addMeeting());
 
 
@@ -121,8 +129,6 @@ public class AddMeetingActivity extends AppCompatActivity {
             }
         });
 
-
-
         timerInput.setOnClickListener(v -> {
             AlertDialog.Builder mBuilder = new AlertDialog.Builder(AddMeetingActivity.this);
             v = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
@@ -130,7 +136,8 @@ public class AddMeetingActivity extends AppCompatActivity {
             ArrayAdapter<String> timerAdapter = new ArrayAdapter<>(AddMeetingActivity.this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.Duration));
             timerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mSpinner.setAdapter(timerAdapter);
-            timerInput.setText(mSpinner.getSelectedItem().toString());
+            mSpinner.setOnItemSelectedListener(this);
+            //timerInput.setText(mSpinner.getSelectedItem().toString());
             mBuilder.setView(v);
             AlertDialog dialog = mBuilder.create();
             dialog.show();
@@ -138,28 +145,37 @@ public class AddMeetingActivity extends AppCompatActivity {
         });
 
         roomInput.setOnClickListener(v -> {
-            AlertDialog.Builder mBuilder = new AlertDialog.Builder(AddMeetingActivity.this);
-            v = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
-            mBuilder.setTitle("Choisissez une salle");
-            mSpinner = v.findViewById(R.id.spinner);
+            if (dateInput.getText().toString().equals("") || timeInput.getText().toString().equals("")
+                    || timerInput.getText().toString().equals("")) {
+                Snackbar.make(v, "Veuillez d'abord saisir une date, une heure, une durée.", Snackbar.LENGTH_LONG).show();
+            } else {
+                getEndMeetingTime();
+                List<String> availableMeetingRooms = mApiService.getFreeMeetingRooms(timeInput.getText().toString(), mMeetingEndTime, dateInput.getText().toString());
 
-            //Spinner roomChoice = new Spinner(getApplicationContext(), Spinner.MODE_DIALOG);
-            ArrayAdapter<String> roomAdapter = new ArrayAdapter<>(AddMeetingActivity.this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.Rooms));
-            roomAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            mSpinner.setAdapter(roomAdapter);
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(AddMeetingActivity.this);
+                v = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
+                mBuilder.setTitle("Choisissez une salle");
+                mSpinner = v.findViewById(R.id.spinner);
 
-            mBuilder.setPositiveButton("Ok", (dialog, which) -> {
-                if(!mSpinner.getSelectedItem().toString().equalsIgnoreCase("Sélectionnez une salle")){
-                    Toast.makeText(AddMeetingActivity.this, "Votre réunion se déroulera en salle " + mSpinner.getSelectedItem().toString() +  "!", Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
-                    roomInput.setText(mSpinner.getSelectedItem().toString());
-                }
-            });
+                //Spinner roomChoice = new Spinner(getApplicationContext(), Spinner.MODE_DIALOG);
+                ArrayAdapter<String> roomAdapter = new ArrayAdapter<>(AddMeetingActivity.this, android.R.layout.simple_spinner_item, MEETINGS_ROOMS);
+                roomAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                mSpinner.setAdapter(roomAdapter);
 
-            mBuilder.setNegativeButton("Annuler", (dialog, which) -> dialog.dismiss());
-            mBuilder.setView(v);
-            AlertDialog dialog = mBuilder.create();
-            dialog.show();
+                mBuilder.setPositiveButton("Ok", (dialog, which) -> {
+                    if(!mSpinner.getSelectedItem().toString().equalsIgnoreCase("Sélectionnez une salle")){
+                        Toast.makeText(AddMeetingActivity.this, "Votre réunion se déroulera en salle " + mSpinner.getSelectedItem().toString() +  "!", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                        roomInput.setText(mSpinner.getSelectedItem().toString());
+                    }
+                });
+
+                mBuilder.setNegativeButton("Annuler", (dialog, which) -> dialog.dismiss());
+                mBuilder.setView(v);
+                AlertDialog dialog = mBuilder.create();
+                dialog.show();
+            }
+
         });
 
         dateInput.setOnClickListener(v -> {
@@ -177,12 +193,11 @@ public class AddMeetingActivity extends AppCompatActivity {
                 public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                     rHour = hourOfDay;
                     rMinute = minute;
-                    Calendar calendar1 = Calendar.getInstance();
-                    calendar1.set(0, 0,0, rHour, rMinute);
-                    timeInput.setText(DateFormat.format("HH:mm", calendar1));
+                    calendar.set(0, 0,0, rHour, rMinute);
+                    timeInput.setText(DateFormat.format("HH:mm", calendar));
                 }
 
-            }, 12,0, false);
+            }, 24,0, true);
             timePickerDialog.updateTime(rHour,rMinute);
             timePickerDialog.show();
         });
@@ -234,17 +249,6 @@ public class AddMeetingActivity extends AppCompatActivity {
 
     @OnClick(R.id.save)
     void addMeeting() {
-        /*List<Meeting> meetings = mApiService.getMeetings();
-        String time = timeInput.getText().toString();
-        String day = dateInput.getText().toString();
-        for(Meeting n : meetings) {
-            String dayInList = n.getDay();
-            String duration = n.getDuration();
-            String timeInList = n.getHour();
-            if (dayInList.equals(day)) {
-
-            }
-        }*/
         Meeting meeting = new Meeting(
                 System.currentTimeMillis(),
                 nameInput.getText().toString(),
@@ -252,13 +256,17 @@ public class AddMeetingActivity extends AppCompatActivity {
                 timeInput.getText().toString(),
                 roomInput.getText().toString(),
                 mMeetingParticipantList,
-                timerInput.getText().toString()
+                mMeetingEndTime
         );
-        //getEndMeetingTime(meeting);
         mApiService.createMeeting(meeting);
         finish();
     }
 
+
+    /**
+     * Generate random color for the list view of meetings
+     * @return int color
+     */
     public static int randomColor() {
         Random random = new Random(System.currentTimeMillis());
         // This is the base color which will be mixed with the generated one
@@ -277,7 +285,7 @@ public class AddMeetingActivity extends AppCompatActivity {
 
     /**
      * Used to navigate to this activity
-     * @param activity
+     * @param activity intent
      */
     public static void navigate(FragmentActivity activity) {
         Intent intent = new Intent(activity, AddMeetingActivity.class);
@@ -293,13 +301,41 @@ public class AddMeetingActivity extends AppCompatActivity {
                 && !roomInput.getText().toString().equals("") && !mMeetingParticipantList.isEmpty());
     }
 
-    private void getEndMeetingTime(Meeting meeting) {
-        SimpleDateFormat formattedTime = new SimpleDateFormat("HH:mm");
-        String endTime = meeting.getHour();
+    /**
+     * get endTime and format to string HH:mm
+     *
+     */
+    private void getEndMeetingTime() {
+        mMeetingStartTimeMillis = calendar.getTimeInMillis();
+        mMeetingEndTimeMillis = mMeetingStartTimeMillis + mMeetingDuration;
+        SimpleDateFormat TimeFormatted = new SimpleDateFormat("HH:mm");
+        mMeetingEndTime = TimeFormatted.format(mMeetingEndTimeMillis);
+    }
 
-        String duration = meeting.getDuration();
-        String meetingDuration = formattedTime.format(duration);
+    /**
+     * Set meeting duration (and text) according to spinner selection and reset meeting room
+     *
+     * @param parent   The AdapterView where the selection happened
+     * @param view     The view within the AdapterView that was clicked
+     * @param position The position of the view in the adapter
+     * @param id       The row id of the item that is selected
+     */
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        timerInput.setText(parent.getItemAtPosition(position).toString());
+        mMeetingDuration = (position) * 15 * 60000; //each item is +15mn from previous one
 
+    }
+
+    /**
+     * Callback method to be invoked when the selection disappears from this
+     * view. The selection can disappear for instance when touch is activated
+     * or when the adapter becomes empty.
+     *
+     * @param parent The AdapterView that now contains no selected item.
+     */
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
 
     }
 }

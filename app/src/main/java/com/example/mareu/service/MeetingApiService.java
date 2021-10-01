@@ -18,20 +18,22 @@ public interface MeetingApiService {
 
     /**
      * Deletes a meeting
-     * @param meeting
+     *
+     * @param meeting the given meeting
      */
     void deleteMeeting(Meeting meeting);
 
     /**
      * Create a meeting
-     * @param meeting
+     *
+     * @param meeting the given meeting
      */
     void createMeeting(Meeting meeting);
 
     /**
      * Get all meetings occurring on a specific day
      *
-     * @param meetingDate the specific day timeStamp in ms
+     * @param meetingDate the specific day
      * @return a list of meetings
      */
     List<Meeting> getMeetingsForGivenDate(String meetingDate);
@@ -39,10 +41,11 @@ public interface MeetingApiService {
     /**
      * Get all meetings taking place in given meeting room
      *
-     * @param meetingRoom the given meeting room id
+     * @param meetingRoom the given meeting room
      * @return a list of meetings
      */
     List<Meeting> getMeetingsForGivenMeetingRoom(String meetingRoom);
 
+    List<String> getFreeMeetingRooms(String meetingStartTime, String meetingEndTime, String meetingDate);
 
 }

@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
 import android.widget.Spinner;
 
 import com.example.mareu.R;
@@ -58,14 +59,11 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
-        mAddButton = (FloatingActionButton) findViewById(R.id.add_meeting);
+        mAddButton = findViewById(R.id.add_meeting);
 
-        mAddButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent AddMeetingActivity = new Intent(MainActivity.this, AddMeetingActivity.class);
-                startActivity(AddMeetingActivity);
-            }
+        mAddButton.setOnClickListener(v -> {
+            Intent AddMeetingActivity = new Intent(MainActivity.this, AddMeetingActivity.class);
+            startActivity(AddMeetingActivity);
         });
     }
 
@@ -172,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
                 View mView = getLayoutInflater().inflate(R.layout.dialog_spinner, null);
                 mBuilder.setTitle("Choisissez une salle");
-                final Spinner mSpinner = (Spinner) mView.findViewById(R.id.spinner);
+                final Spinner mSpinner = mView.findViewById(R.id.spinner);
 
                 ArrayAdapter<String> roomAdapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.Rooms));
                 roomAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

@@ -55,12 +55,11 @@ public class MeetingListTest {
 
     private int currentMeetingsSize = -1;
     private static final int ITEMS_COUNT = 10;
-    private String SELECTED_ROOM = "Newton";
+    private final String SELECTED_ROOM = "Newton";
     private final int mPosition = 0;
 
-    private Date now = new Date();
-    DateFormat dateformatter = DateFormat.getDateInstance(DateFormat.SHORT);
-    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/YYYY");
+    private final Date now = new Date();
+    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
     String formattedDate = formatter.format(now);
 
     private MainActivity mActivity;
@@ -71,7 +70,7 @@ public class MeetingListTest {
             new ActivityTestRule<>(MainActivity.class);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         mActivity = mainActivityTestRule.getActivity();
         assertThat(mActivity, notNullValue());
         mApiService = DI.getMeetingApiService();
@@ -101,15 +100,9 @@ public class MeetingListTest {
                 .check(withItemCount(ITEMS_COUNT-1));
     }
 
-    /**@Test
-    public void checkIfAddingMeetingIsWorking() {
-
-        onView(withId(R.id.add_meeting)).perform(click());
-
-        onView(withId(R.id.list_meeting)).check(withItemCount(ITEMS_COUNT + 1));
-
-    }*/
-
+    /**
+     * We ensure that the meetings displayed is for the selected date
+     */
     @Test
     public void checkIfFilterByDateIsWorking() {
         onView(withContentDescription(R.string.menu)).perform(click());
@@ -119,6 +112,9 @@ public class MeetingListTest {
         checkOnlyTodayMeetings();
     }
 
+    /**
+     * We ensure that the meetings displayed is for the selected room
+     */
     @Test
     public void checkIfFilterByRoomIsWorking() {
         onView(withContentDescription(R.string.menu)).perform(click());
@@ -130,6 +126,9 @@ public class MeetingListTest {
         onView(withId(R.id.list_meeting)).check(withItemCount(3));
     }
 
+    /**
+     * We ensure that the list of meetings is reset
+     */
     @Test
     public void checkIfReinitializeFilterIsWorking() {
         onView(withContentDescription(R.string.menu)).perform(click());
@@ -142,9 +141,6 @@ public class MeetingListTest {
         onView(withId(R.id.list_meeting)).check(withItemCount(currentMeetingsSize));
     }
 
-    private void checkMeetingNotSchedulable() {
-        onView(withId(R.id.add_meeting)).check(matches(not(isEnabled())));
-    }
     private void checkOnlyTodayMeetings() {
         boolean noTodayMeetings = false;
         try {

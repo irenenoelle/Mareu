@@ -19,12 +19,14 @@
         <item>Descartes</item>
     </string-array>
     <string-array name="Duration">
+        <item>-</item>
         <item>15 minutes</item>
         <item>30 minutes</item>
         <item>45 minutes</item>
         <item>1 heure</item>
+        <item>1h15 minutes</item>
         <item>1h30 minutes</item>
+        <item>1h45 minutes</item>
         <item>2 heures</item>
-        <item>La journée</item>
     </string-array>
 </resources>
